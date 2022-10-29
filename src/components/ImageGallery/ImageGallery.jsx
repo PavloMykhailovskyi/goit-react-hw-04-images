@@ -1,5 +1,6 @@
 import { ImageGalleryItem } from "components/ImageGalleryItem/ImageGalleryItem";
 import css from './ImageGallery.module.css'
+import PropTypes from 'prop-types'
 
 
 export const ImageGallery = ({images}) => {
@@ -10,4 +11,8 @@ export const ImageGallery = ({images}) => {
         ))}
       </ul>
     );
+}
+
+ImageGallery.propTypes = {
+  images: PropTypes.array.isRequired,
 }

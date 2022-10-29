@@ -2,6 +2,7 @@ import { Component } from "react";
 import Notiflix from "notiflix";
 import { BiSearch } from 'react-icons/bi';
 import css from './SearchBar.module.css'
+import PropTypes from 'prop-types'
 
 export class SearchBar extends Component {
   state = {
@@ -13,13 +14,14 @@ export class SearchBar extends Component {
   };
 
   handleSubmit = e => {
+    const { search } = this.state;
       e.preventDefault();
 
-      if (this.state.search.trim() === '') {
+      if (search.trim() === '') {
           Notiflix.Notify.warning('Please enter your quest word');
           return
       }
-      this.props.onSubmit(this.state.search);
+      this.props.onSubmit(search);
       this.setState({ search: '' });
   };
 
@@ -47,4 +49,8 @@ export class SearchBar extends Component {
       </div>
     );
   }
+}
+
+SearchBar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
 }

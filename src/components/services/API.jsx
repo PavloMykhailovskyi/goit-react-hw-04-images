@@ -11,3 +11,8 @@ export const getImagesFromAPI = async ({query, page}) => {
     
     return response.data
 }
+
+getImagesFromAPI.propTypes = {
+  page: PropTypes.number.isRequired,
+  query: PropTypes.string.isRequired,
+}

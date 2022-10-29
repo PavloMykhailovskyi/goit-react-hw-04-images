@@ -16,21 +16,9 @@ export class App extends Component {
     totalHits: null,
   };
 
-  onHandleSubmit = query => {
-    this.setState({ query: query, page: 1, images: [], loading: true });
-
-    console.log(query);
-  };
-
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1, loading: true
-    }));
-  };
-
   async componentDidUpdate(_, prevState) {
     if (!this.state.loading) {
-      return
+      return;
     }
 
     try {
@@ -39,29 +27,45 @@ export class App extends Component {
         page: this.state.page,
       });
       if (images.totalHits === 0) {
-        Notiflix.Notify.failure('Sorry, your quest has no result!')
+        Notiflix.Notify.failure('Sorry, your quest has no result!');
       }
-if (
+      if (
         prevState.page !== this.state.page ||
         prevState.query !== this.state.query
       ) {
-  this.setState({ images: [...this.state.images, ...images.hits], loading: false, totalHits: images.totalHits });
-  
+        this.setState({
+          images: [...this.state.images, ...images.hits],
+          loading: false,
+          totalHits: images.totalHits,
+        });
       }
-    } catch (error) { } 
-    finally {
-      this.setState({loading: false})
+    } catch (error) {
+    } finally {
+      this.setState({ loading: false });
     }
   }
 
+  onHandleSubmit = query => {
+    this.setState({ query: query, page: 1, images: [], loading: true });
+  };
+
+  loadMore = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+      loading: true,
+    }));
+  };
+
   render() {
-    const images = this.state.images;
+    const { images, loading, totalHits } = this.state;
     return (
       <div className={css.app}>
         <SearchBar onSubmit={this.onHandleSubmit} />
         {this.state.loading && <Loader />}
         <ImageGallery images={images} />
-        {images.length > 0 && images.length !== this.state.totalHits && <LoadButton onClick={this.loadMore}/>}
+        {images.length > 0 && images.length !== totalHits && !loading && (
+          <LoadButton onClick={this.loadMore} />
+        )}
       </div>
     );
   }
