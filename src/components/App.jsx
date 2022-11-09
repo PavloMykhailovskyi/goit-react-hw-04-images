@@ -1,5 +1,5 @@
 import Notiflix from 'notiflix';
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import { SearchBar } from './SearchBar/SearchBar';
@@ -7,66 +7,60 @@ import { getImagesFromAPI } from './services/API';
 import {LoadButton} from './Button/Button'
 import css from './App.module.css'
 
-export class App extends Component {
-  state = {
-    query: '',
-    page: 1,
-    images: [],
-    loading: false,
-    totalHits: null,
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalHits, setTotalHits] = useState(null);
 
-  async componentDidUpdate(_, prevState) {
-    if (!this.state.loading) {
+
+  const onHandleSubmit = query => {
+    setQuery(query);
+    setPage(1);
+    setImages([]);
+    setLoading(true);
+  }
+
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
+    setLoading(true);
+  }
+
+  
+
+  useEffect(() => {
+    if (!loading) {
       return;
     }
 
-    try {
-      const images = await getImagesFromAPI({
-        query: this.state.query,
-        page: this.state.page,
-      });
-      if (images.totalHits === 0) {
-        Notiflix.Notify.failure('Sorry, your quest has no result!');
+    async function downloadNewImages() {
+      try {
+        const images = await getImagesFromAPI(query, page);
+        if (images.totalHits === 0) {
+          Notiflix.Notify.failure('Sorry, your quest has no result!')
+        }
+        setImages(prevState => [...prevState, ...images.hits]);
+        setLoading(false);
+        setTotalHits(images.totalHits);
+      } catch (error) {
+        
+      } finally {
+        setLoading(false);
       }
-      if (
-        prevState.page !== this.state.page ||
-        prevState.query !== this.state.query
-      ) {
-        this.setState({
-          images: [...this.state.images, ...images.hits],
-          loading: false,
-          totalHits: images.totalHits,
-        });
-      }
-    } catch (error) {
-    } finally {
-      this.setState({ loading: false });
-    }
-  }
+    } 
 
-  onHandleSubmit = query => {
-    this.setState({ query: query, page: 1, images: [], loading: true });
-  };
+    downloadNewImages()
+  }, [query, loading, page])
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-      loading: true,
-    }));
-  };
-
-  render() {
-    const { images, loading, totalHits } = this.state;
-    return (
-      <div className={css.app}>
-        <SearchBar onSubmit={this.onHandleSubmit} />
-        {this.state.loading && <Loader />}
-        <ImageGallery images={images} />
-        {images.length > 0 && images.length !== totalHits && !loading && (
-          <LoadButton onClick={this.loadMore} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className={css.app}>
+      <SearchBar onSubmit={onHandleSubmit} />
+      {loading && <Loader />}
+      <ImageGallery images={images} />
+      {images.length > 0 && images.length !== totalHits && !loading && (
+        <LoadButton onClick={loadMore} />
+      )}
+    </div>
+  );
 }
