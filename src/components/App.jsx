@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Loader } from './Loader/Loader';
 import { SearchBar } from './SearchBar/SearchBar';
-import { getImagesFromAPI } from './services/API';
+import { getImagesFromAPI } from '../services/API';
 import {LoadButton} from './Button/Button'
 import css from './App.module.css'
 
